@@ -9,12 +9,7 @@ def main():
     
     # Crear el analizador léxico y tokenizar el código
     lexer = Lexer(code)
-    tokens = lexer.tokenize()
-
-    # Guardar los tokens en el archivo de salida
-    with open('output.txt', 'w') as output_file:
-        for token in tokens:
-            output_file.write(f"{token}\n")
+    lexer.tokenize()  # No hace falta guardar el retorno ya que se manejan internamente los tokens y errores
 
 if __name__ == "__main__":
     main()

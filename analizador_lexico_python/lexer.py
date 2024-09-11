@@ -1,4 +1,3 @@
-# lexer.py
 from tokens import is_reserved_word, is_operator, is_delimiter, OPERATORS, DELIMITERS
 
 class Lexer:
@@ -9,6 +8,7 @@ class Lexer:
         self.column = 1
         self.tokens = []
         self.error_reported = False
+        self.error_message = "" 
         
         # Reiniciar el archivo de salida al inicio
         open('output.txt', 'w').close()  # Vacía el archivo al iniciar
@@ -51,27 +51,24 @@ class Lexer:
             else:
                 # Error léxico
                 self.report_error()
-                break
+                break  # Detenerse inmediatamente después de reportar el error
         
-        if not self.error_reported:
-            self.write_output()
+        self.write_output()
         return self.tokens
     
     def report_error(self):
-        """Reporta un error léxico y marca que el error ha sido reportado."""
+        """Almacena un mensaje de error léxico sin escribirlo inmediatamente."""
         if not self.error_reported:
-            try:
-                with open('output.txt', 'a') as file:
-                    file.write(f">>> Error léxico(linea:{self.line},posicion:{self.column})\n")
-                print(f"Error léxico reportado: linea:{self.line}, posicion:{self.column}")  # Debugging line
-            except Exception as e:
-                print(f"Error al escribir en el archivo: {e}")
+            # Almacena el mensaje de error en lugar de escribirlo inmediatamente
+            self.error_message = f">>> Error léxico(linea:{self.line},posicion:{self.column})\n"
+            print(f"Error léxico reportado: linea:{self.line}, posicion:{self.column}")  # Para depuración
             self.error_reported = True
-    
+
     def write_output(self):
         """Escribe los tokens en el archivo de salida."""
         try:
-            with open('output.txt', 'a') as file:  # Cambiar a 'a' para añadir al archivo
+            with open('output.txt', 'w') as file:  # Cambiado a 'w' para sobrescribir
+                # Primero escribe todos los tokens válidos
                 for token in self.tokens:
                     if isinstance(token, tuple):
                         if len(token) == 4:  # Token con lexema
@@ -80,8 +77,14 @@ class Lexer:
                             file.write(f"<{token[0]},{token[1]},{token[2]}>\n")
                     else:
                         file.write(f"{token}\n")
+                
+                # Luego escribe el mensaje de error si existe
+                if hasattr(self, 'error_message') and self.error_message:
+                    file.write(self.error_message)
         except Exception as e:
             print(f"Error al escribir en el archivo: {e}")
+
+
     
     def tokenize_identifier(self):
         """Tokeniza identificadores y palabras reservadas, manejando errores léxicos."""

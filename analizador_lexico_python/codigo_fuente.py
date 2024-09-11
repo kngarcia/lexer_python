@@ -1,3 +1,7 @@
-hola = 2
-for i in range(10):
-    print(hola)
+hola
+1.0
+mundo
+hola
+1mundo
+hola 
+hola 
