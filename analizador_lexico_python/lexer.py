@@ -8,6 +8,10 @@ class Lexer:
         self.line = 1
         self.column = 1
         self.tokens = []
+        self.error_reported = False
+        
+        # Reiniciar el archivo de salida al inicio
+        open('output.txt', 'w').close()  # Vacía el archivo al iniciar
     
     def advance(self):
         """Avanza el puntero de posición y ajusta columna y línea."""
@@ -27,6 +31,9 @@ class Lexer:
     def tokenize(self):
         """Realiza el análisis léxico del código fuente."""
         while self.position < len(self.code):
+            if self.error_reported:
+                break
+            
             char = self.peek()
             
             if char.isspace():
@@ -43,40 +50,91 @@ class Lexer:
                 self.tokenize_delimiter()
             else:
                 # Error léxico
-                print(f">>> Error léxico(linea:{self.line},posicion:{self.column})")
-                return
+                self.report_error()
+                break
         
+        if not self.error_reported:
+            self.write_output()
         return self.tokens
     
+    def report_error(self):
+        """Reporta un error léxico y marca que el error ha sido reportado."""
+        if not self.error_reported:
+            try:
+                with open('output.txt', 'a') as file:
+                    file.write(f">>> Error léxico(linea:{self.line},posicion:{self.column})\n")
+                print(f"Error léxico reportado: linea:{self.line}, posicion:{self.column}")  # Debugging line
+            except Exception as e:
+                print(f"Error al escribir en el archivo: {e}")
+            self.error_reported = True
+    
+    def write_output(self):
+        """Escribe los tokens en el archivo de salida."""
+        try:
+            with open('output.txt', 'a') as file:  # Cambiar a 'a' para añadir al archivo
+                for token in self.tokens:
+                    if isinstance(token, tuple):
+                        if len(token) == 4:  # Token con lexema
+                            file.write(f"<{token[0]},{token[1]},{token[2]},{token[3]}>\n")
+                        elif len(token) == 3:  # Palabra reservada
+                            file.write(f"<{token[0]},{token[1]},{token[2]}>\n")
+                    else:
+                        file.write(f"{token}\n")
+        except Exception as e:
+            print(f"Error al escribir en el archivo: {e}")
+    
     def tokenize_identifier(self):
-        """Tokeniza identificadores y palabras reservadas."""
+        """Tokeniza identificadores y palabras reservadas, manejando errores léxicos."""
         start_pos = self.position
-        while self.peek() and (self.peek().isalnum() or self.peek() == '_'):
-            self.advance()
-        identifier = self.code[start_pos:self.position]
-        if is_reserved_word(identifier):
-            self.tokens.append((identifier, self.line, self.column))
-        else:
-            self.tokens.append(("id", identifier, self.line, self.column))
+        # Verificar si el primer carácter es válido para un identificador
+        if self.peek() and (self.peek().isalpha() or self.peek() == '_'):
+            self.advance()  # Avanzar para procesar el siguiente carácter
+            # Continuar mientras se encuentren caracteres válidos
+            while self.peek() and (self.peek().isalnum() or self.peek() == '_'):
+                self.advance()
 
+            identifier = self.code[start_pos:self.position]
+            
+            # Comprobar si es una palabra reservada
+            if is_reserved_word(identifier):
+                self.tokens.append((identifier, self.line, self.column))
+            else:
+                self.tokens.append(("id", identifier, self.line, self.column))
+        else:
+            # Si el primer carácter no es válido para un identificador, reportar error léxico
+            self.report_error()
+    
     def tokenize_number(self):
-        """Tokeniza números enteros y flotantes."""
+        """Tokeniza números enteros y maneja errores léxicos si un número es seguido por caracteres inválidos."""
         start_pos = self.position
         while self.peek() and self.peek().isdigit():
             self.advance()
+        
+        # Después de procesar un número, verifica el siguiente carácter
+        if self.peek() and (self.peek().isalpha() or self.peek() == '_'):
+            # Si hay un alfabético o guion bajo después de un número, es un error léxico
+            self.report_error()
+            return
+        
         number = self.code[start_pos:self.position]
         self.tokens.append(("tk_entero", number, self.line, self.column))
     
     def tokenize_operator(self):
         """Tokeniza operadores."""
         char = self.peek()
-        token_name = OPERATORS[char]
-        self.tokens.append((token_name, self.line, self.column))
-        self.advance()
+        token_name = OPERATORS.get(char, None)
+        if token_name:
+            self.tokens.append((token_name, self.line, self.column))
+            self.advance()
+        else:
+            self.report_error()
     
     def tokenize_delimiter(self):
         """Tokeniza delimitadores."""
         char = self.peek()
-        token_name = DELIMITERS[char]
-        self.tokens.append((token_name, self.line, self.column))
-        self.advance()
+        token_name = DELIMITERS.get(char, None)
+        if token_name:
+            self.tokens.append((token_name, self.line, self.column))
+            self.advance()
+        else:
+            self.report_error()
