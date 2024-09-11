@@ -10,8 +10,7 @@ RESERVED_WORDS = {
 OPERATORS = {
     "+": "tk_suma", "-": "tk_resta", "*": "tk_multiplicacion", "/": "tk_division",
     "%": "tk_modulo", "=": "tk_asig", "==": "tk_igual", "!=": "tk_distinto",
-    "<": "tk_menor", ">": "tk_mayor", "<=": "tk_menor_igual", ">=": "tk_mayor_igual",
-    "and": "tk_and", "or": "tk_or", "not": "tk_not"
+    "<": "tk_menor", ">": "tk_mayor", "<=": "tk_menor_igual", ">=": "tk_mayor_igual", "!": "dis"
 }
 
 DELIMITERS = {

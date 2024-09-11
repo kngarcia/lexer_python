@@ -1,6 +1,11 @@
 from tokens import is_reserved_word, is_operator, is_delimiter, OPERATORS, DELIMITERS
 
 class Lexer:
+
+    """
+    Constructor de la clase lexer
+    """
+
     def __init__(self, code):
         self.code = code
         self.position = 0
@@ -13,6 +18,10 @@ class Lexer:
         # Reiniciar el archivo de salida al inicio
         open('output.txt', 'w').close()  # Vacía el archivo al iniciar
     
+
+    """
+    Función que maneja el salto de linea y columna
+    """
     def advance(self):
         """Avanza el puntero de posición y ajusta columna y línea."""
         if self.position < len(self.code):
@@ -22,12 +31,20 @@ class Lexer:
             self.column += 1
             self.position += 1
 
+    
+    """
+    Toma el caracter sin avanzar de columna
+    """
+
     def peek(self):
         """Retorna el siguiente carácter sin avanzar."""
         if self.position < len(self.code):
             return self.code[self.position]
         return None
 
+    """
+    Aqui se trae el valor dentro del diccionario
+    """
     def tokenize(self):
         """Realiza el análisis léxico del código fuente."""
         while self.position < len(self.code):
@@ -40,6 +57,13 @@ class Lexer:
                 self.advance()
                 continue
             
+            #Sirve para tokenizar los comentarios
+            if char == '#':
+                self.tokenize_comment()
+                continue
+            
+
+
             if char.isalpha() or char == '_':
                 self.tokenize_identifier()
             elif char.isdigit():
@@ -55,7 +79,9 @@ class Lexer:
         
         self.write_output()
         return self.tokens
-    
+    """
+    Este es el que reporta los errores
+    """
     def report_error(self):
         """Almacena un mensaje de error léxico sin escribirlo inmediatamente."""
         if not self.error_reported:
@@ -63,7 +89,7 @@ class Lexer:
             self.error_message = f">>> Error léxico(linea:{self.line},posicion:{self.column})\n"
             print(f"Error léxico reportado: linea:{self.line}, posicion:{self.column}")  # Para depuración
             self.error_reported = True
-
+    
     def write_output(self):
         """Escribe los tokens en el archivo de salida."""
         try:
@@ -86,6 +112,9 @@ class Lexer:
 
 
     
+    """
+    AFD para tokenizar los ids y palabras reservadas
+    """
     def tokenize_identifier(self):
         """Tokeniza identificadores y palabras reservadas, manejando errores léxicos."""
         start_pos = self.position
@@ -123,14 +152,29 @@ class Lexer:
         self.tokens.append(("tk_entero", number, self.line, self.column))
     
     def tokenize_operator(self):
-        """Tokeniza operadores."""
+        """Tokeniza operadores de uno o dos caracteres."""
         char = self.peek()
-        token_name = OPERATORS.get(char, None)
-        if token_name:
+        
+        # Verifica si hay un segundo carácter después del operador actual
+        next_char = self.code[self.position + 1] if self.position + 1 < len(self.code) else None
+
+        # Combinaciones de dos caracteres para operadores dobles
+        combined = f"{char}{next_char}" if next_char else char
+
+        # Verifica si es un operador de dos caracteres primero
+        if combined in OPERATORS:
+            token_name = OPERATORS[combined]
+            self.tokens.append((token_name, self.line, self.column))
+            self.advance()  # Avanza dos caracteres
+            self.advance()
+        elif char in OPERATORS:  # Si es un operador de un solo carácter
+            token_name = OPERATORS[char]
             self.tokens.append((token_name, self.line, self.column))
             self.advance()
         else:
+            # Si no es un operador válido, reporta un error léxico
             self.report_error()
+
     
     def tokenize_delimiter(self):
         """Tokeniza delimitadores."""
@@ -141,3 +185,13 @@ class Lexer:
             self.advance()
         else:
             self.report_error()
+
+    """
+        Funcion que maneja los comentarios
+    """
+    def tokenize_comment(self):
+        """Tokeniza y descarta los comentarios de una sola línea."""
+        if self.peek() == '#':
+            while self.peek() != '\n' and self.peek() is not None:
+                self.advance()
+            # Aquí descartamos el comentario, no se genera ningún token
