@@ -68,6 +68,8 @@ class Lexer:
                 self.tokenize_identifier()
             elif char.isdigit():
                 self.tokenize_number()
+            elif char in {'"', "'"}:  
+                self.tokenize_string()
             elif is_operator(char):
                 self.tokenize_operator()
             elif is_delimiter(char):
@@ -195,3 +197,45 @@ class Lexer:
             while self.peek() != '\n' and self.peek() is not None:
                 self.advance()
             # Aquí descartamos el comentario, no se genera ningún token
+
+    
+    def tokenize_string(self):
+        """Tokeniza cadenas de texto y maneja errores léxicos de cadenas no cerradas."""
+        start_line = self.line  # Guardar la línea inicial de la cadena
+        start_column = self.column  # Guardar la columna inicial de la cadena
+        quote_char = self.peek()  # Comilla simple o doble que abre la cadena
+        self.advance()  # Avanza más allá de la comilla inicial
+
+        string_content = ""
+
+        while self.peek() is not None:
+            current_char = self.peek()
+
+            # Verificar si encontramos la comilla de cierre
+            if current_char == quote_char:
+                self.advance()  # Avanza más allá de la comilla de cierre
+                self.tokens.append(("tk_string", string_content, start_line, start_column))
+                return
+
+            # Manejar saltos de línea y espacios dentro de la cadena
+            if current_char == '\n':
+                self.line += 1
+                self.column = 0  # Reiniciar columna al comienzo de la nueva línea
+            else:
+                self.column += 1
+
+            # Actualizar el contenido de la cadena con el carácter actual
+            string_content += current_char
+            self.advance()
+
+        # Si no encontramos una comilla de cierre, reportar un error léxico en la posición de apertura
+        self.line = start_line  # Volver a la línea donde comenzó la cadena
+        self.column = start_column  # Volver a la columna donde comenzó la cadena
+        self.report_error()
+
+
+    
+
+    
+
+
