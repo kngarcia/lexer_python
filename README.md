@@ -1,5 +1,11 @@
 # Lexer en Python
 
+## Integrantes del grupo:
+  - Camilo López
+  - Juan Josá Márquez
+  - Kevin García
+  - Miguel Fernández
+
 ## Estructura del proyecto:
 
 lexer.py Contiene la clase Lexer, que es la encargada de realizar el análisis léxico del código fuente.
