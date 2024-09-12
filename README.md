@@ -10,23 +10,23 @@ main.py El archivo principal que inicializa el lexer, lee el archivo de entrada 
 
 ## Métodos principales en Lexer:
 
-__init__(self, code): Constructor que inicializa las variables del lexer como el código fuente, posición actual, línea, columna, lista de tokens y manejo de errores. Además, vacía el archivo de salida antes de empezar el análisis.\n
+__init__(self, code): Constructor que inicializa las variables del lexer como el código fuente, posición actual, línea, columna, lista de tokens y manejo de errores. Además, vacía el archivo de salida antes de empezar el análisis.
 
-advance(self): Avanza el puntero de lectura sobre el código fuente, actualizando la columna y línea cuando sea necesario.\n
+advance(self): Avanza el puntero de lectura sobre el código fuente, actualizando la columna y línea cuando sea necesario.
 
-peek(self): Retorna el siguiente carácter sin avanzar el puntero, permitiendo inspeccionar el carácter antes de procesarlo.\n
+peek(self): Retorna el siguiente carácter sin avanzar el puntero, permitiendo inspeccionar el carácter antes de procesarlo.
 
-tokenize(self): Realiza el análisis léxico del código, procesando secuencialmente los caracteres y generando tokens. Detecta y almacena identificadores, palabras reservadas, operadores, delimitadores, números, cadenas de texto y comentarios.\n
+tokenize(self): Realiza el análisis léxico del código, procesando secuencialmente los caracteres y generando tokens. Detecta y almacena identificadores, palabras reservadas, operadores, delimitadores, números, cadenas de texto y comentarios.
 
-report_error(self): Almacena un mensaje de error léxico cuando se detecta una secuencia no válida en el código, deteniendo el análisis si es necesario.\n
+report_error(self): Almacena un mensaje de error léxico cuando se detecta una secuencia no válida en el código, deteniendo el análisis si es necesario.
 
-write_output(self): Escribe en el archivo de salida los tokens generados y los errores léxicos, mostrando el contenido en consola.\n
+write_output(self): Escribe en el archivo de salida los tokens generados y los errores léxicos, mostrando el contenido en consola.
 
-tokenize_identifier(self): Tokeniza los identificadores y palabras reservadas. Un identificador válido debe empezar con una letra o un guion bajo (_) y puede contener caracteres alfanuméricos adicionales. \n
+tokenize_identifier(self): Tokeniza los identificadores y palabras reservadas. Un identificador válido debe empezar con una letra o un guion bajo (_) y puede contener caracteres alfanuméricos adicionales. 
 
-tokenize_number(self): Tokeniza números enteros y maneja posibles errores léxicos si el número es seguido por caracteres inválidos. \n
+tokenize_number(self): Tokeniza números enteros y maneja posibles errores léxicos si el número es seguido por caracteres inválidos.
 
-tokenize_operator(self): Tokeniza operadores de uno, dos o tres caracteres, verificando combinaciones como +=, ==, **=, entre otros. \n
+tokenize_operator(self): Tokeniza operadores de uno, dos o tres caracteres, verificando combinaciones como +=, ==, **=, entre otros.
 
 tokenize_delimiter(self): Tokeniza delimitadores y maneja el balanceo de símbolos de apertura y cierre como (), {}, [], reportando errores si hay un desequilibrio en los símbolos. \n
 
