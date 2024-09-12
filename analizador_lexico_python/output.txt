@@ -1,3 +1,1 @@
-<id,x,1,2>
-<tk_asig,1,3>
->>> Error léxico(linea:1,posicion:5)
+<tk_pesos,1,1>
