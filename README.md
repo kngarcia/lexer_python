@@ -59,5 +59,12 @@ Para usar la clase `Lexer`, primero debes importarla y los componentes necesario
 ```python
 from tokens import is_reserved_word, is_operator, is_delimiter, DELIMITERS, OPERATORS, RESERVED_WORDS
 from lexer import Lexer  # Ajusta el import según la ubicación de tu archivo
+```
 
 
+## Ejecución
+En una terminal nos situamos en la carpeta que se descargo se clono por medio de Github y ponemos el siguiente comando:
+
+```
+python3 main.py
+```
